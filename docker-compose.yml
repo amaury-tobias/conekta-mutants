@@ -1,0 +1,25 @@
+version: "3.3"
+
+services:
+  api:
+    build: "."
+    labels:
+      traefik.http.routers.api.rule: "Host(`conekta.amaurytq.localhost`) || Host(`conekta.amaurytq.dev`)"
+  traefik:
+    image: "traefik:v2.4"
+    command: --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  mongo:
+    image: mongo
+    labels:
+      traefik.enable: false
+    environment:
+      MONGO_INITDB_DATABASE: conekta
+    volumes:
+      - dbdata:/data/db
+volumes:
+  dbdata:
