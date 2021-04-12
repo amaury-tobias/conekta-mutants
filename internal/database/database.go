@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,7 +12,7 @@ import (
 var MutantCollection *mongo.Collection
 
 func Init() error {
-	clientOptions := options.Client().ApplyURI("mongodb://mongo:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://" + getHost() + ":27017")
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		return err
@@ -35,4 +36,12 @@ func Disconnect() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	MutantCollection.Database().Client().Disconnect(ctx)
+}
+
+func getHost() string {
+	dbHost := os.Getenv("DB_HOST")
+	if len(dbHost) == 0 {
+		dbHost = "localhost"
+	}
+	return dbHost
 }

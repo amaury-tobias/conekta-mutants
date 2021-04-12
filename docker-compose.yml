@@ -5,6 +5,8 @@ services:
     build: "."
     labels:
       traefik.http.routers.api.rule: "Host(`conekta.amaurytq.localhost`) || Host(`conekta.amaurytq.dev`)"
+    environment:
+      - DB_HOST=mongo #Nombre del servicio con la imagen de mongo
   traefik:
     image: "traefik:v2.4"
     command: --providers.docker
