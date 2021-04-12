@@ -59,10 +59,11 @@ func GetDiagonals(dnaSeq [][]string) []string {
 		acc = ""
 	}
 
-	for n := -len(dnaSeq); n <= len(dnaSeq); n++ {
-		for i := 0; i < len(dnaSeq); i++ {
-			if (i-n >= 0) && (i-n < len(dnaSeq)) {
-				acc += dnaSeq[i][i-n]
+	for k := -len(dnaSeq); k <= len(dnaSeq); k++ {
+		for j := 0; j < len(dnaSeq); j++ {
+			i := j - k
+			if (i >= 0) && (i < len(dnaSeq)) {
+				acc += dnaSeq[j][i]
 			}
 		}
 		if len(acc) > 3 {
