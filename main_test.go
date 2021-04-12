@@ -81,6 +81,14 @@ func TestTestRoute(t *testing.T) {
 				}`),
 		},
 		{
+			name:   "GET Stats",
+			method: "GET",
+			route:  "/stats",
+			// Mocked Values
+			want:     "{\"count_mutant_dna\":5,\"count_human_dna\":10,\"ratio\":0.5}",
+			wantCode: fiber.StatusOK,
+		},
+		{
 			name:     "Not found",
 			method:   "GET",
 			route:    "/i-dont-exists",
