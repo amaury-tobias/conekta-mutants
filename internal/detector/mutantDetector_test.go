@@ -1,9 +1,8 @@
-package main
+package detector
 
 import (
 	"testing"
 
-	"github.com/amaury-tobias/conekta-mutants/internal/detector"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -66,7 +65,7 @@ func TestParseDNA(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got, err := detector.ParseDNA(tt.args.dna)
+		got, err := ParseDNA(tt.args.dna)
 		assert.Equalf(t, tt.wantErr, err != nil, tt.name)
 		if tt.wantErr {
 			assert.EqualErrorf(t, err, tt.wantErrMessage, tt.name)
@@ -105,7 +104,7 @@ func TestGetColumns(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := detector.GetColumns(tt.args.dnaSeq)
+		got := GetColumns(tt.args.dnaSeq)
 		assert.NotNilf(t, got, tt.name)
 		assert.Equalf(t, tt.want, got, tt.name)
 	}
@@ -138,7 +137,7 @@ func TestSequenceIsMutant(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		got := detector.SequenceIsMutant(tt.args.dna)
+		got := SequenceIsMutant(tt.args.dna)
 		assert.NotNilf(t, got, tt.name)
 		assert.Equalf(t, tt.want, got, tt.name)
 	}
@@ -178,7 +177,7 @@ func TestGetDiagonals(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		got := detector.GetDiagonals(tt.args.dnaSeq)
+		got := GetDiagonals(tt.args.dnaSeq)
 		assert.NotNilf(t, got, tt.name)
 		assert.Equalf(t, tt.want, got, tt.name)
 	}
@@ -238,7 +237,7 @@ func TestIsMutant(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got, err := detector.IsMutant(tt.args.dna)
+		got, err := IsMutant(tt.args.dna)
 		assert.Equalf(t, tt.wantErr, err != nil, tt.name)
 		if tt.wantErr {
 			assert.EqualErrorf(t, err, tt.wantErrMessage, tt.name)
