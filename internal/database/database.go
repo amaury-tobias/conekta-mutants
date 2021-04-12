@@ -5,21 +5,19 @@ import (
 	"os"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var MutantCollection *mongo.Collection
+var DBClient MongoClient
 
-func Init() error {
+func Setup(databaseSession Session) error {
 	clientOptions := options.Client().ApplyURI("mongodb://" + getHost() + ":27017")
-	client, err := mongo.NewClient(clientOptions)
+	client, err := databaseSession.NewClient(clientOptions)
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
 	err = client.Connect(ctx)
 	if err != nil {
 		return err
@@ -28,14 +26,8 @@ func Init() error {
 	if err != nil {
 		return err
 	}
-	MutantCollection = client.Database("conekta").Collection("humans")
+	DBClient = client
 	return nil
-}
-
-func Disconnect() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	MutantCollection.Database().Client().Disconnect(ctx)
 }
 
 func getHost() string {

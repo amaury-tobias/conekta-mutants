@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/amaury-tobias/conekta-mutants/internal/api"
 	"github.com/amaury-tobias/conekta-mutants/internal/database"
 )
 
 func main() {
-	err := database.Init()
+	err := database.Setup(database.NewMongoSession())
 	checkError(err)
-	defer database.Disconnect()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	defer database.DBClient.Disconnect(ctx)
 
 	app := api.Init()
 	checkError(app.Listen(":5000"))

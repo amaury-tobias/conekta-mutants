@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/amaury-tobias/conekta-mutants/internal/database"
 	"github.com/amaury-tobias/conekta-mutants/internal/models"
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,7 +23,7 @@ func PostMutant(c *fiber.Ctx) error {
 		}
 	}
 
-	err = human.Save()
+	err = database.DBClient.Database("conekta").Collection("humans").SaveHuman(human)
 	if err != nil {
 		return &fiber.Error{
 			Code:    fiber.StatusInternalServerError,
@@ -38,8 +39,7 @@ func PostMutant(c *fiber.Ctx) error {
 }
 
 func GetStats(c *fiber.Ctx) error {
-	stats := new(models.Stats)
-	res, err := stats.GetStats()
+	res, err := database.DBClient.Database("conekta").Collection("humans").GetStats()
 	if err != nil {
 		return &fiber.Error{
 			Code:    fiber.StatusInternalServerError,

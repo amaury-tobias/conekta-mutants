@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/amaury-tobias/conekta-mutants/internal/api"
+	"github.com/amaury-tobias/conekta-mutants/internal/database"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 )
@@ -87,6 +88,9 @@ func TestTestRoute(t *testing.T) {
 			wantCode: fiber.StatusNotFound,
 		},
 	}
+
+	err := database.Setup(database.NewMockSession())
+	checkError(err)
 
 	app := api.Init()
 
