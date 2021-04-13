@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/amaury-tobias/conekta-mutants/internal/models"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
@@ -23,21 +23,32 @@ type MongoDatabase interface {
 }
 type MongoCollection interface {
 	Database() MongoDatabase
-	GetStats() (*models.Stats, error)
-	SaveHuman(*models.HumanModel) error
+	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
+	Aggregate(ctx context.Context, pipeline interface{}, opts ...*options.AggregateOptions) (MongoCursor, error)
 }
+type MongoCursor interface {
+	Close(ctx context.Context) error
+	Next(ctx context.Context) bool
+	Decode(val interface{}) error
+	Err() error
+}
+
+type MockCursor struct{}
+
+func (c *MockCursor) Close(ctx context.Context) error { return nil }
+func (c *MockCursor) Next(ctx context.Context) bool   { return false }
+func (c *MockCursor) Decode(val interface{}) error    { return nil }
+func (c *MockCursor) Err() error                      { return nil }
 
 type MockCollection struct{}
 
-func (c *MockCollection) GetStats() (*models.Stats, error) {
-	return &models.Stats{
-		CountMutantDNA: 5,
-		CountHumanDNA:  10,
-		Ratio:          0.5,
-	}, nil
+func (c *MockCollection) Database() MongoDatabase { return &MockDatabase{} }
+func (c *MockCollection) InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
+	return nil, nil
 }
-func (c *MockCollection) SaveHuman(*models.HumanModel) error { return nil }
-func (c *MockCollection) Database() MongoDatabase            { return &MockDatabase{} }
+func (c *MockCollection) Aggregate(ctx context.Context, pipeline interface{}, opts ...*options.AggregateOptions) (MongoCursor, error) {
+	return &MockCursor{}, nil
+}
 
 type MockDatabase struct{}
 

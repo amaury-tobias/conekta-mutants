@@ -10,24 +10,23 @@ import (
 
 var DBClient MongoClient
 
-func Setup(databaseSession Session) error {
+func NewMongoDatabase(databaseSession Session) (MongoDatabase, error) {
 	clientOptions := options.Client().ApplyURI("mongodb://" + getHost() + ":27017")
 	client, err := databaseSession.NewClient(clientOptions)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	DBClient = client
-	return nil
+	return client.Database("conekta"), nil
 }
 
 func getHost() string {

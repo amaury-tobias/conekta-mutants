@@ -7,17 +7,26 @@ import (
 
 	"github.com/amaury-tobias/conekta-mutants/internal/api"
 	"github.com/amaury-tobias/conekta-mutants/internal/database"
+	"github.com/amaury-tobias/conekta-mutants/internal/repository"
+	"github.com/amaury-tobias/conekta-mutants/internal/services"
 )
 
 func main() {
-	err := database.Setup(database.NewMongoSession())
+	mutantsService, err := SetupService(database.NewMongoSession())
+	checkError(err)
+
+	app := api.Init(mutantsService)
+	checkError(app.Listen(":5000"))
+}
+
+func SetupService(session database.Session) (services.MutantsService, error) {
+	db, err := database.NewMongoDatabase(session)
 	checkError(err)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	defer database.DBClient.Disconnect(ctx)
-
-	app := api.Init()
-	checkError(app.Listen(":5000"))
+	defer db.Client().Disconnect(ctx)
+	mutantsRepository := repository.NewMutantsRepository(db)
+	return services.NewMutantsService(mutantsRepository), nil
 }
 
 func checkError(e error) {
