@@ -81,11 +81,10 @@ func TestTestRoute(t *testing.T) {
 				}`),
 		},
 		{
-			name:   "GET Stats",
-			method: "GET",
-			route:  "/stats",
-			// Mocked Values
-			want:     "{\"count_mutant_dna\":5,\"count_human_dna\":10,\"ratio\":0.5}",
+			name:     "GET Stats",
+			method:   "GET",
+			route:    "/stats",
+			want:     "{\"count_mutant_dna\":0,\"count_human_dna\":0,\"ratio\":0}",
 			wantCode: fiber.StatusOK,
 		},
 		{
@@ -97,10 +96,12 @@ func TestTestRoute(t *testing.T) {
 		},
 	}
 
-	err := database.Setup(database.NewMockSession())
-	checkError(err)
-
-	app := api.Init()
+	session := database.NewMockSession()
+	assert.NotNilf(t, session, "Database Session")
+	mutantsService, err := SetupService(session)
+	assert.Nilf(t, err, "Mutants Service")
+	app := api.Init(mutantsService)
+	assert.NotNilf(t, app, "Initialize App")
 
 	for _, test := range tests {
 		req, _ := http.NewRequest(
