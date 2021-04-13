@@ -12,21 +12,16 @@ import (
 )
 
 func main() {
-	mutantsService, err := SetupService(database.NewMongoSession())
-	checkError(err)
-
-	app := api.Init(mutantsService)
-	checkError(app.Listen(":5000"))
-}
-
-func SetupService(session database.Session) (services.MutantsService, error) {
-	db, err := database.NewMongoDatabase(session)
+	db, err := database.NewMongoDatabase(database.NewMongoSession())
 	checkError(err)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	defer db.Client().Disconnect(ctx)
 	mutantsRepository := repository.NewMutantsRepository(db)
-	return services.NewMutantsService(mutantsRepository), nil
+	mutantsService := services.NewMutantsService(mutantsRepository)
+
+	app := api.Init(mutantsService)
+	checkError(app.Listen(":5000"))
 }
 
 func checkError(e error) {

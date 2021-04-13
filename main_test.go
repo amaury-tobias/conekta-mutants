@@ -2,12 +2,15 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
 	"github.com/amaury-tobias/conekta-mutants/internal/api"
 	"github.com/amaury-tobias/conekta-mutants/internal/database"
+	"github.com/amaury-tobias/conekta-mutants/internal/repository"
+	"github.com/amaury-tobias/conekta-mutants/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 )
@@ -98,7 +101,7 @@ func TestTestRoute(t *testing.T) {
 
 	session := database.NewMockSession()
 	assert.NotNilf(t, session, "Database Session")
-	mutantsService, err := SetupService(session)
+	mutantsService, err := SetupMockService(session)
 	assert.Nilf(t, err, "Mutants Service")
 	app := api.Init(mutantsService)
 	assert.NotNilf(t, app, "Initialize App")
@@ -121,4 +124,14 @@ func TestTestRoute(t *testing.T) {
 		assert.Nilf(t, err, test.name)
 		assert.Equalf(t, test.want, string(body), test.name)
 	}
+}
+
+func SetupMockService(session database.Session) (services.MutantsService, error) {
+	db, err := database.NewMongoDatabase(session)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Client().Disconnect(context.TODO())
+	mutantsRepository := repository.NewMutantsRepository(db)
+	return services.NewMutantsService(mutantsRepository), nil
 }
